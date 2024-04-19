@@ -2,65 +2,71 @@ from src.Entities.bank import Bank
 from src.Entities.branch import Branch 
 from src.Entities.customer import Customer 
 import src.Infrastructures.terminal as terminal
+from src.Persistences.repository import Repository
 
-def create_new_bank(banks):
-    bank_id = str(len(banks) + 1)
+repository = Repository()
+banks = repository.banks  
+branches = repository.branches 
+customers = repository.customers 
+
+def create_new_bank():
+    bank_id = len(banks) + 1
     bank_name = input("Enter bank name: ")
-    return Bank(bank_id, bank_name)
+    banks[bank_id] = Bank(bank_id, bank_name)
+    return banks[bank_id]
 
-def create_new_branch(bank,branches):
-    branch_id = str(len(branches) + 1)
+def create_new_branch(bank_id):
+    branch_id = len(branches) + 1
     branch_name = input("Enter branch name: ")
-    budget = float(input("Enter budget: "))
+    budget = int(input("Enter budget: "))
     city = input("Enter city: ")
-    return Branch(branch_id,bank.bank_id, branch_name, 0, budget, city)
+    branches[branch_id] = Branch(bank_id, branch_id, branch_name, 0, budget, city)
+    return branches[branch_id]
 
-def create_new_customer(branch,customers):
-    customer_id = str(len(customers) + 1)
+def create_new_customer(branch_id):
+    customer_id = len(customers) + 1
     first_name = input("Enter customer first name: ")
     last_name = input("Enter customer last name: ")
     national_code = input("Enter customer national code: ")
     address = input("Enter customer address: ")
-    return Customer(branch.branch_id, customer_id, first_name, last_name, national_code, address)
+    branch = branches[branch_id]
+    branch.number_of_customers += 1
+    customers[customer_id] = Customer(branch_id, customer_id, first_name, last_name, national_code, address)
+    return customers[customer_id]
 
-def manage(banks, branches, customers):
-   while(True):
+def manage():
+    while(True):
         try:
-            print("Main Menu:")
+            print("Admin Menu:")
             print("1. Create New Bank")
             print("2. Create New Branch in a Bank")
             print("3. Create New Customer in a Branch")
-            print("0. Back to Main Menu")
+            print("0. Back to Select Menu")
             choice = input("Enter your choice: ")
             terminal.clear()
             if choice == "1":
-                bank = create_new_bank(banks)
-                banks.append(bank)
+                bank = create_new_bank()
                 print(terminal.GREEN, f"Bank '{bank.bank_name}' created with ID '{bank.bank_id}'.", terminal.RESET)
             elif choice == "2":
-                for bank in banks:
+                for bank_id, bank in banks.items():
                     print(bank.show_detail())
                 try:
-                    bank_id = input("Enter bank ID to create branch: ")
-                    bank = next((b for b in banks if b.bank_id == bank_id), None)
-                    if bank:
-                        branch = create_new_branch(bank,branches)
-                        branches.append(branch)
-                        print(terminal.GREEN, f"Branch '{branch.branch_name}' created in bank '{bank.bank_name}'.", terminal.RESET)
+                    bank_id = int(input("Enter bank ID to create branch: "))
+                    if bank_id in banks:
+                        branch = create_new_branch(bank_id)
+                        print(terminal.GREEN, f"Branch '{branch.branch_name}' created in bank '{banks[bank_id].bank_name}'.", terminal.RESET)
                     else:
                         raise Exception("Bank not found.")
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
             elif choice == "3":
-                for branch in branches:
+                for branch_id, branch in branches.items():
                     print(branch.show_detail())
                 try:
-                    branch_id = input("Enter branch id to create customer: ")
-                    branch = next((b for b in branches if b.branch_id == branch_id), None)
-                    if branch:
-                        customer = create_new_customer(branch,customers)
-                        customers.append(customer)
-                        print(terminal.GREEN, f"Customer '{customer.first_name} {customer.last_name}' created in branch '{branch.branch_name}'.", terminal.RESET)
+                    branch_id = int(input("Enter branch id to create customer: "))
+                    if branch_id in branches:
+                        customer = create_new_customer(branch_id)
+                        print(terminal.GREEN, f"Customer '{customer.first_name} {customer.last_name}' created in branch '{branches[branch_id].branch_name}'.", terminal.RESET)
                     else:
                         raise Exception("Branch not found.")
                 except Exception as e:
@@ -70,4 +76,4 @@ def manage(banks, branches, customers):
             else:
                 raise ValueError("Invalid choice. Please try again.")
         except ValueError as e:
-            print(terminal.RED, e, terminal.RESET)  
+            print(terminal.RED, e, terminal.RESET)

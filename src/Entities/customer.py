@@ -8,3 +8,11 @@ class Customer(Person):
         self.national_code = national_code
         self.address = address
 
+
+    def show_detail(self):
+        return f"Customer ID: {self.customer_id}\
+        First Name: {self.first_name}\
+        Last Name: {self.last_name}\
+        National Code: {self.national_code}\
+        Address: {self.address}"
+
