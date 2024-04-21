@@ -3,6 +3,7 @@ import src.Services.customer_menu as customer_menu
 import json
 from getpass import getpass
 
+
 import src.Infrastructures.terminal as terminal
 
 
@@ -11,6 +12,10 @@ def load_admin_credentials(filename):
     with open(filename, 'r') as file:
         credentials = json.load(file)
     return credentials
+
+banks = {}
+branches = {}
+customers = {}
 
 def main():
     while True:
@@ -29,15 +34,27 @@ def main():
              password == admin_credentials['password']:
                 terminal.clear()
                 print(terminal.GREEN, "Login successful. Access granted to admin menu.", terminal.RESET)
-                admin_menu.manage()
+                admin_menu.manage(banks, branches, customers)
             else:
                 terminal.clear()
                 print(terminal.RED, "Invalid username or password. Access denied.", terminal.RESET)
                 continue 
 
         elif menu_choice == '2':
-            customer_menu.manage()
-            pass
+            for customer_id, customer in customers.items():
+                print(customer.show_detail())
+            try:
+                customer_id = int(input("Enter CustomerId: "))
+                if customer_id in customers:
+                    customer = customers[customer_id]
+                    print('---------------------------------------------------')
+                    print(terminal.GREEN, f"hello {customer.first_name} {customer.last_name}, Welcome!", terminal.RESET)
+                    print('---------------------------------------------------')
+                    customer_menu.manage(customer)
+                else:
+                    raise Exception("Customer not found.")
+            except Exception as e:
+                print(terminal.RED, e, terminal.RESET)  
         elif menu_choice == '0':
             break
         else:
