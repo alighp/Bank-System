@@ -3,6 +3,29 @@ from src.Entities.branch import Branch
 from src.Entities.customer import Customer 
 import src.Infrastructures.terminal as terminal
 
+import json
+
+def change_password():
+    username = input("Enter current username: ")
+    current_password = input("Enter current password: ")
+    new_password = input("Enter new password: ")
+
+    try:
+        with open('admin_credentials.json', 'r') as file:
+            credentials = json.load(file)
+    except FileNotFoundError:
+        credentials = {"username": "", "password": ""}
+
+    if username == credentials['username'] and current_password == credentials['password']:
+        credentials['password'] = new_password
+
+        with open('admin_credentials.json', 'w') as file:
+            json.dump(credentials, file)
+        print(terminal.GREEN, "Password changed successfully.", terminal.RESET)
+    else:
+        print(terminal.RED, "Invalid username or password.", terminal.RESET)
+
+
 def create_new_bank(banks):
     bank_id = len(banks) + 1
     bank_name = input("Enter bank name: ")
@@ -39,6 +62,7 @@ def manage(banks, branches, customers):
             print("2. Create New Branch in a Bank")
             print("3. Create New Customer in a Branch")
             print("4. Open an Account for Customer")
+            print("5. Change Password")
             print("0. Back to Select Menu")
             choice = input("Enter your choice: ")
             terminal.clear()
@@ -93,6 +117,8 @@ def manage(banks, branches, customers):
                         raise Exception("Customer not found.")
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
+            elif choice == "5":
+                change_password()
             elif choice == "0":
                 break
             else:
