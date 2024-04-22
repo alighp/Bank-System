@@ -1,13 +1,19 @@
 import src.Infrastructures.terminal as terminal
+import src.Infrastructures.unique_number as unique_number
 
 def show_accounts(accounts):
     for account_number, account in accounts.items():
         print(account.show_detail())
 
-def choose_accounts():
-    return input("Choose Account Number: ")
+def choose_accounts(accounts):
+    account_number = input("Choose Account Number: ")
+    if account_number in accounts:
+        account = accounts[account_number]
+        return account
+    else:
+        raise Exception("Account not found.")
 
-def manage(customer):
+def manage(customer, branch):
     while(True):
         try:
             print("Customer Menu:")
@@ -20,34 +26,45 @@ def manage(customer):
             terminal.clear()
             if choice == "1":
                 show_accounts(customer.accounts)
-                account_number = choose_accounts()
                 try:
-                    if account_number in customer.accounts:
-                        account = customer.accounts[account_number]
-                        amount = int(input("Enter Deposit Amount: "))
-                        account.deposit(amount)
-                        print(f"Amount {amount} successfully Deposit / New Balance: {account.balance}")
-                    else:
-                        raise Exception("Account not found.")
+                    account = choose_accounts(customer.accounts)
+                    amount = int(input("Enter Deposit Amount: "))
+                    account.deposit(amount)
+                    print(f"Amount {amount} successfully Deposit / New Balance: {account.balance}")
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
             elif choice == "2":
                 show_accounts(customer.accounts)
-                account_number = choose_accounts()
                 try:
-                    if account_number in customer.accounts:
-                        account = customer.accounts[account_number]
-                        amount = int(input("Enter Withdraw Amount: "))
+                    account = choose_accounts(customer.accounts)
+                    amount = int(input("Enter Withdraw Amount: "))
+                    if(amount <= account.balance):
                         account.withdraw(amount)
                         print(f"Amount {amount} successfully Withdraw / New Balance: {account.balance}")
                     else:
-                        raise Exception("Account not found.")
+                        raise Exception("insufficient balance.")
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
             elif choice == "3":
                 show_accounts(customer.accounts)
             elif choice == "4":
-                pass    
+                try:
+                    if(customer.loan != None):
+                        raise Exception("You Have already requested loan recently in this branch")
+                    show_accounts(customer.accounts)
+                    account = choose_accounts(customer.accounts)
+                    loan_amount = int(input("Enter Your Loan Request Amount: "))
+                    if loan_amount <= branch.budget:
+                        loan_number = unique_number.generate()
+                        print(loan_number)
+                        account_number = account.account_number
+                        customer.request_loan(loan_number, loan_amount, account_number) 
+                        branch.budget -= loan_amount
+                        print(f"Loan request with amount {loan_amount} is successfully registered")
+                    else:
+                        raise Exception("Insufficient budget in the branch for the requested loan amount.")
+                except Exception as e:
+                    print(terminal.RED, e, terminal.RESET)  
             elif choice == "0":
                 break
             else:

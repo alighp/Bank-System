@@ -2,16 +2,8 @@ import src.Services.admin_menu as admin_menu
 import src.Services.customer_menu as customer_menu
 import json
 from getpass import getpass
-
-
 import src.Infrastructures.terminal as terminal
-
-
-
-def load_admin_credentials(filename):
-    with open(filename, 'r') as file:
-        credentials = json.load(file)
-    return credentials
+import src.Infrastructures.file as file
 
 banks = {}
 branches = {}
@@ -26,7 +18,7 @@ def main():
         menu_choice = input("Enter your choice: ")
         terminal.clear()
         if menu_choice == '1':
-            admin_credentials = load_admin_credentials('admin_credentials.json')
+            admin_credentials = file.load_admin_credentials('admin_credentials.json')
             username = input("Enter username: ")
             password = getpass("Enter password: ")
 
@@ -47,10 +39,11 @@ def main():
                 customer_id = int(input("Enter CustomerId: "))
                 if customer_id in customers:
                     customer = customers[customer_id]
+                    branch = branches[customer.branch_id]
                     print('---------------------------------------------------')
                     print(terminal.GREEN, f"hello {customer.first_name} {customer.last_name}, Welcome!", terminal.RESET)
                     print('---------------------------------------------------')
-                    customer_menu.manage(customer)
+                    customer_menu.manage(customer, branch)
                 else:
                     raise Exception("Customer not found.")
             except Exception as e:

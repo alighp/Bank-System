@@ -2,29 +2,19 @@ from src.Entities.bank import Bank
 from src.Entities.branch import Branch 
 from src.Entities.customer import Customer 
 import src.Infrastructures.terminal as terminal
+import src.Infrastructures.file as file
 
-import json
-
-def change_password():
+def change_password(credentials):
     username = input("Enter current username: ")
     current_password = input("Enter current password: ")
     new_password = input("Enter new password: ")
 
-    try:
-        with open('admin_credentials.json', 'r') as file:
-            credentials = json.load(file)
-    except FileNotFoundError:
-        credentials = {"username": "", "password": ""}
-
     if username == credentials['username'] and current_password == credentials['password']:
         credentials['password'] = new_password
-
-        with open('admin_credentials.json', 'w') as file:
-            json.dump(credentials, file)
+        file.update('admin_credentials.json', credentials)
         print(terminal.GREEN, "Password changed successfully.", terminal.RESET)
     else:
         print(terminal.RED, "Invalid username or password.", terminal.RESET)
-
 
 def create_new_bank(banks):
     bank_id = len(banks) + 1
@@ -118,7 +108,8 @@ def manage(banks, branches, customers):
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
             elif choice == "5":
-                change_password()
+                credentials = file.load_admin_credentials('admin_credentials.json')   
+                change_password(credentials)
             elif choice == "0":
                 break
             else:
