@@ -36,22 +36,22 @@ def main():
             for customer_id, customer in customers.items():
                 print(customer.show_detail())
             try:
-                customer_id = int(input("Enter CustomerId: "))
-                if customer_id in customers:
-                    customer = customers[customer_id]
-                    branch = branches[customer.branch_id]
-                    print('---------------------------------------------------')
-                    print(terminal.GREEN, f"hello {customer.first_name} {customer.last_name}, Welcome!", terminal.RESET)
-                    print('---------------------------------------------------')
-                    customer_menu.manage(customer, branch)
-                else:
-                    raise Exception("Customer not found.")
+                national_code = input("Enter customer national code: ")  
+                for customer_id, customer in customers.items():
+                    if customer.national_code == national_code:
+                        branch = branches[customer.branch_id]
+                        print('---------------------------------------------------')
+                        print(terminal.GREEN, f"hello {customer.first_name} {customer.last_name}, Welcome!", terminal.RESET)
+                        print('---------------------------------------------------')
+                        customer_menu.manage(customer, branch)
+                        break
+                raise Exception("Customer not found.")
             except Exception as e:
                 print(terminal.RED, e, terminal.RESET)  
         elif menu_choice == '0':
             break
         else:
-            print(terminal.RED, "Invalid choice. Please enter '1' or '2'.", terminal.RESET)
+            print(terminal.RED, "Invalid choice. try again.", terminal.RESET)
     terminal.clear()
 
 main()
