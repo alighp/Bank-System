@@ -4,3 +4,6 @@ class Loan:
         self.loan_amount = loan_amount
         self.account_number = account_number
         self.customer_id = customer_id
+
+    def show_detail(self):
+        return f"Loan Number: {self.loan_number} Loan Amount: {self.loan_amount}"

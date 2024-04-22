@@ -13,14 +13,19 @@ def choose_accounts(accounts):
     else:
         raise Exception("Account not found.")
 
+def check_budget_for_loan(loan_amount, budget):
+    if loan_amount > budget:
+        raise Exception("Insufficient budget in the branch for the requested loan amount.")
+
 def manage(customer, branch):
     while(True):
         try:
             print("Customer Menu:")
             print("1. Deposit")
             print("2. Withdraw")
-            print("3. Show Accounts")
+            print("3. Show Accounts Details")
             print("4. Request Loan")
+            print("5. Show Loan Detail")
             print("0. Back to Select Menu")
             choice = input("Enter your choice: ")
             terminal.clear()
@@ -54,17 +59,23 @@ def manage(customer, branch):
                     show_accounts(customer.accounts)
                     account = choose_accounts(customer.accounts)
                     loan_amount = int(input("Enter Your Loan Request Amount: "))
-                    if loan_amount <= branch.budget:
-                        loan_number = unique_number.generate()
-                        print(loan_number)
-                        account_number = account.account_number
-                        customer.request_loan(loan_number, loan_amount, account_number) 
-                        branch.budget -= loan_amount
-                        print(f"Loan request with amount {loan_amount} is successfully registered")
-                    else:
-                        raise Exception("Insufficient budget in the branch for the requested loan amount.")
+                    check_budget_for_loan(loan_amount, branch.budget)
+                    loan_number = unique_number.generate()
+                    account_number = account.account_number
+                    customer.request_loan(loan_number, loan_amount, account_number) 
+                    branch.budget -= loan_amount
+                    account.balance += loan_amount
+                    print('---------------------------------------------------------------------')
+                    print(f"Loan request with Laon Number {loan_number} and amount {loan_amount} is successfully registered")
+                    print(f"Account balance: {account.balance} ")
+                    print('---------------------------------------------------------------------')
                 except Exception as e:
                     print(terminal.RED, e, terminal.RESET)  
+            elif choice == "5":
+                if customer.loan != None:
+                    print(customer.loan.show_detail())
+                else:
+                    print("Customer hasn't applied for any loan yet")
             elif choice == "0":
                 break
             else:
